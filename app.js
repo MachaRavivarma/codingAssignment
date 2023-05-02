@@ -73,35 +73,34 @@ const convertLikeDbObjectToResponsiveDbObject = (dbObject) => {
   };
 };
 
-app.post("/register/", async (request, response) => {
-  const { username, name, password, gender } = request.body;
-  const hashedPassword = await bcrypt.hash(request.body.password, 10);
-  const selectUserQuery = `SELECT * FROM user WHERE username = '${username}'`;
-  const dbUser = await db.get(selectUserQuery);
-  if (dbUser === undefined) {
-    const createUserQuery = `
-      INSERT INTO 
-        user (username, name, password, gender) 
-      VALUES 
-        (
-          '${username}', 
-          '${name}',
-          '${hashedPassword}', 
-          '${gender}',
-        )`;
-    const dbResponse = await db.run(createUserQuery);
-    const newUserId = dbResponse.lastID;
-    response.status(200);
-    response.send("User created successfully");
-  } else {
-    const lengthOfPassword = hashedPassword.length;
-    if (lengthOfPassword < 6) {
+app.post("/register", async (request, response) => {
+  let { username, name, password, gender } = request.body;
+  let hashedPassword = await bcrypt.hash(password, 10);
+  let checkTheUsername = `
+            SELECT *
+            FROM user
+            WHERE username = '${username}';`;
+  let userData = await db.get(checkTheUsername);
+  if (userData === undefined) {
+    let postNewUserQuery = `
+            INSERT INTO
+            user (username,name,password,gender)
+            VALUES (
+                '${username}',
+                '${name}',
+                '${hashedPassword}',
+                '${gender}');`;
+    if (password.length < 6) {
       response.status(400);
       response.send("Password is too short");
     } else {
-      response.status = 400;
-      response.send("User already exists");
+      let newUserDetails = await db.run(postNewUserQuery);
+      response.status(200);
+      response.send("User created successfully");
     }
+  } else {
+    response.status(400);
+    response.send("User already exists");
   }
 });
 
@@ -133,18 +132,17 @@ app.post("/login", async (request, response) => {
   const dbUser = await db.get(selectUserQuery);
   if (dbUser === undefined) {
     response.status(400);
-    response.send("Invalid User");
+    response.send("Invalid user");
   } else {
     const isPasswordMatched = await bcrypt.compare(password, dbUser.password);
     if (isPasswordMatched === true) {
-      const payload = {
-        username: username,
-      };
+      const payload = { username: username };
       const jwtToken = jwt.sign(payload, "MY_SECRET_TOKEN");
       response.send({ jwtToken });
+      response.send("Login success!");
     } else {
       response.status(400);
-      response.send("Invalid Password");
+      response.send("Invalid password");
     }
   }
 });
