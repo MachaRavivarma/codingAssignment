@@ -157,7 +157,7 @@ app.get("/user/tweets/feed/", authenticateToken, async (request, response) => {
     INNER JOIN user
     ON tweet.user_id = user.user_id
     WHERE
-    follower.follower_user_id = ${userId}
+    follower.follower_user_id = ${tweet.user_id}
     ORDER BY
     tweet.date_time DESC
     LIMIT 4;`;
@@ -189,7 +189,7 @@ app.get(
   authenticateToken,
   async (request, response) => {
     const { tweetId } = request.params;
-    const apiSeven = `SELECT * FROM tweet INNER JOIN like WHERE tweet_id = ${tweetId};`;
+    const apiSeven = `SELECT * FROM tweet INNER JOIN like.tweet_id = tweet.tweet_id WHERE tweet_id = ${tweetId};`;
     const apiSevenD = await db.get(apiSeven);
     response.send(convertLikeDbObjectToResponsiveDbObject(apiSevenD));
   }
@@ -200,7 +200,7 @@ app.get(
   authenticateToken,
   async (request, response) => {
     const { tweetId } = request.params;
-    const apiEight = `SELECT * FROM tweet INNER JOIN reply WHERE tweet_id = ${tweetId};`;
+    const apiEight = `SELECT * FROM tweet INNER JOIN reply.tweet_id = tweet.tweet_id WHERE tweet_id = ${tweetId};`;
     const apiEightD = await db.get(apiEight);
     response.send(convertReplayDbObjectToResponsiveDbObject(apiEightD));
   }
