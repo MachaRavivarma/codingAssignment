@@ -1,14 +1,12 @@
 const express = require("express");
 const app = express();
-app.use(express.json());
-//const format = require("date-fns/format");
-//const isValid = require("date-fns/isValid");
-//const toDate = require("date-fns/toDate");
+
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const { open } = require("sqlite");
 const sqlite3 = require("sqlite3");
+app.use(express.json());
 
 const path = require("path");
 const dbPath = path.join(__dirname, "twitterClone.db");
@@ -73,14 +71,14 @@ const convertLikeDbObjectToResponsiveDbObject = (dbObject) => {
   };
 };
 
-app.post("/register", async (request, response) => {
-  let { username, name, password, gender } = request.body;
-  let hashedPassword = await bcrypt.hash(password, 10);
-  let checkTheUsername = `
+app.post("/register/", async (request, response) => {
+  const { username, name, password, gender } = request.body;
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const checkTheUsername = `
             SELECT *
             FROM user
             WHERE username = '${username}';`;
-  let userData = await db.get(checkTheUsername);
+  const userData = await db.get(checkTheUsername);
   if (userData === undefined) {
     let postNewUserQuery = `
             INSERT INTO
@@ -94,7 +92,7 @@ app.post("/register", async (request, response) => {
       response.status(400);
       response.send("Password is too short");
     } else {
-      let newUserDetails = await db.run(postNewUserQuery);
+      const newUserDetails = await db.run(postNewUserQuery);
       response.status(200);
       response.send("User created successfully");
     }
@@ -119,7 +117,7 @@ const authenticateToken = (request, response, next) => {
         response.status(401);
         response.send("Invalid JWT Token");
       } else {
-        const { username } = request;
+        request.username = payload.username;
         next();
       }
     });
@@ -166,15 +164,15 @@ app.get("/user/tweets/feed/", authenticateToken, async (request, response) => {
 });
 
 app.get("/user/following/", authenticateToken, async (request, response) => {
-  const apiFour = `SELECT * FROM user INNER JOIN follower WHERE user_id = ${userId};`;
+  const apiFour = `SELECT name FROM user INNER JOIN follower WHERE user_id = ${userId};`;
   const apiFourD = await db.all(apiFour);
-  response.send(apiFourD);
+  response.send(convertUserDbObjectToResponsiveDbObject(apiFourD));
 });
 
 app.get("/user/followers/", authenticateToken, async (request, response) => {
-  const apiFive = `SELECT * FROM user INNER JOIN follower WHERE user_id = ${userId};`;
+  const apiFive = `SELECT name FROM user INNER JOIN follower WHERE user_id = ${userId};`;
   const apiFiveD = await db.all(apiFive);
-  response.send(apiFiveD);
+  response.send(convertUserDbObjectToResponsiveDbObject(apiFiveD));
 });
 
 app.get("/tweets/:tweetId/", authenticateToken, async (request, response) => {
