@@ -155,7 +155,7 @@ app.get("/user/tweets/feed/", authenticateToken, async (request, response) => {
     INNER JOIN user
     ON tweet.user_id = user.user_id
     WHERE
-    follower.follower_user_id = ${tweet.user_id}
+    follower.follower_user_id = ${user.user_id}
     ORDER BY
     tweet.date_time DESC
     LIMIT 4;`;
