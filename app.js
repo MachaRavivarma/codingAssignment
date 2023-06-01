@@ -241,13 +241,13 @@ app.get("/user/tweets/", authenticateToken, async (request, response) => {
 });
 
 app.post("/user/tweets/", authenticateToken, async (request, response) => {
-    const { payload } = request;
-    const { user_id, name, username, gender } = payload;
-    const { tweet } = request.body;
-    const { tweetId } = request.params;
-    const apiTen = `INSERT  INTO tweet(tweet, user_id) VALUES (`${tweet}`,${user_id})  WHERE tweet_id = ${tweet_id};`;
-    const apiTenD = await db.run(apiTen);
-    response.send("Created a Tweet");
+  const { payload } = request;
+  const { user_id, name, username, gender } = payload;
+  const { tweet } = request.body;
+  const { tweetId } = request.params;
+  const apiTen = `INSERT  INTO tweet(tweet, user_id) VALUES ('${tweet}','${user_id}')  WHERE tweet_id = ${tweet_id};`;
+  const apiTenD = await db.run(apiTen);
+  response.send("Created a Tweet");
 });
 
 app.delete(
@@ -259,13 +259,13 @@ app.delete(
     const { tweetId } = request.params;
     const selectedQuery = `SELECT * FROM tweet WHERE tweet.user_id = ${user_id} AND tweet.tweet_id = ${tweet_id};`;
     const tweetUser = await db.all(selectedQuery);
-    if (tweetUser.length !== 0){
-        const apiEleven = `DELETE FROM tweet WHERE tweet_id = ${tweetId} AND tweet.user_id = ${user_id};`;
-         await db.run(apiEleven);
-        response.send("Tweet Removed");
-    }else{
-        response.status(401);
-        response.send("Invalid Request");
+    if (tweetUser.length !== 0) {
+      const apiEleven = `DELETE FROM tweet WHERE tweet_id = ${tweetId} AND tweet.user_id = ${user_id};`;
+      await db.run(apiEleven);
+      response.send("Tweet Removed");
+    } else {
+      response.status(401);
+      response.send("Invalid Request");
     }
   }
 );
