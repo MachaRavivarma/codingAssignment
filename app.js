@@ -94,7 +94,12 @@ app.post("/login", async (request, response) => {
   } else {
     const isPasswordMatched = await bcrypt.compare(password, dbUser.password);
     if (isPasswordMatched === true) {
-      const payload = { username: username };
+      const payload = {
+        username: username,
+        user_id: user_id,
+        name: name,
+        gender: gender,
+      };
       const jwtToken = jwt.sign(payload, "MY_SECRET_TOKEN");
       response.send({ jwtToken });
     } else {
