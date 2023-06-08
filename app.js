@@ -133,7 +133,7 @@ app.get("/user/tweets/feed/", authenticateToken, async (request, response) => {
 app.get("/user/following/", authenticateToken, async (request, response) => {
   const { payload } = request;
   const { user_id, name, username, gender } = payload;
-  const apiFour = `SELECT name FROM user INNER JOIN follower ON user.user_id = follower.following_user_id WHERE follower.follower_user_id = ${user_d};`;
+  const apiFour = `SELECT name FROM user INNER JOIN follower ON user.user_id = follower.following_user_id WHERE follower.follower_user_id = ${user_id};`;
   const apiFourD = await db.all(apiFour);
   response.send(apiFourD);
 });
@@ -141,7 +141,7 @@ app.get("/user/following/", authenticateToken, async (request, response) => {
 app.get("/user/followers/", authenticateToken, async (request, response) => {
   const { payload } = request;
   const { user_id, name, username, gender } = payload;
-  const apiFive = `SELECT name FROM user INNER JOIN follower ON user.user_id = follower.follower_user_id WHERE follower.following_user_id = ${user_d};`;
+  const apiFive = `SELECT name FROM user INNER JOIN follower ON user.user_id = follower.follower_user_id WHERE follower.following_user_id = ${user_id};`;
   const apiFiveD = await db.all(apiFive);
   response.send(apiFiveD);
 });
@@ -152,7 +152,7 @@ app.get("/tweets/:tweetId/", authenticateToken, async (request, response) => {
   const { tweetId } = request.params;
   const apiSix = `SELECT * FROM tweet WHERE tweet_id = ${tweetId};`;
   const apiSixD = await db.get(apiSix);
-  const apiSixTwo = `SELECT * FROM follower INNER JOIN user ON user.user_id = follower.following_user_id WHERE follower.follower_user_id = ${user_d};`;
+  const apiSixTwo = `SELECT * FROM follower INNER JOIN user ON user.user_id = follower.following_user_id WHERE follower.follower_user_id = ${user_id};`;
   const apiSixTwoD = await db.all(apiSixTwo);
   if (
     apiSixTwoD.some((item) => item.following_user_id === tweetsResult.user_id)
@@ -251,7 +251,7 @@ app.post("/user/tweets/", authenticateToken, async (request, response) => {
   const { user_id, name, username, gender } = payload;
   const { tweet } = request.body;
   const { tweetId } = request.params;
-  const apiTen = `INSERT  INTO tweet(tweet, user_id) VALUES ('${tweet}','${user_id}')  WHERE tweet_id = ${tweet_id};`;
+  const apiTen = `INSERT  INTO tweet(tweet, user_id,date_time) VALUES ('${tweet}','${user_id}','${date_time}')  WHERE tweet_id = ${tweet_id};`;
   const apiTenD = await db.run(apiTen);
   response.send("Created a Tweet");
 });
