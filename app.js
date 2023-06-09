@@ -154,9 +154,7 @@ app.get("/tweets/:tweetId/", authenticateToken, async (request, response) => {
   const apiSixD = await db.get(apiSix);
   const apiSixTwo = `SELECT * FROM follower INNER JOIN user ON user.user_id = follower.following_user_id WHERE follower.follower_user_id = ${user_id};`;
   const apiSixTwoD = await db.all(apiSixTwo);
-  if (
-    apiSixTwoD.some((item) => item.following_user_id === tweetsResult.user_id)
-  ) {
+  if (apiSixTwoD.some((item) => item.following_user_id === apiSixD.user_id)) {
     const getTweetDetailsQuery = `
       SELECT 
         tweet,
@@ -166,7 +164,7 @@ app.get("/tweets/:tweetId/", authenticateToken, async (request, response) => {
     From
         tweet INNER JOIN like ON tweet.tweet_id = like.tweet_id INNER JOIN reply ON reply.tweet_id = tweet.tweet_id
     WHERE 
-        tweet.tweet_id = ${tweetId} AND tweet.user_id = ${userFollowers[0].user_id}
+        tweet.tweet_id = ${tweetId} AND tweet.user_id = ${apiSixTwoD[0].user_id}
       `;
     const tweetDetails = await db.get(getTweetDetailsQuery);
     response.send(tweetDetails);
