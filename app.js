@@ -254,24 +254,30 @@ app.post("/user/tweets/", authenticateToken, async (request, response) => {
   response.send("Created a Tweet");
 });
 
-app.delete(
-  "/tweets/:tweetId/",
-  authenticateToken,
-  async (request, response) => {
-    const { payload } = request;
-    const { user_id, name, username, gender } = payload;
-    const { tweetId } = request.params;
-    const selectedQuery = `SELECT * FROM tweet WHERE tweet.user_id = ${user_id} AND tweet.tweet_id = ${tweet_id};`;
-    const tweetUser = await db.all(selectedQuery);
-    if (tweetUser.length !== 0) {
-      const apiEleven = `DELETE FROM tweet WHERE tweet_id = ${tweetId} AND tweet.user_id = ${user_id};`;
-      await db.run(apiEleven);
-      response.send("Tweet Removed");
-    } else {
-      response.status(401);
-      response.send("Invalid Request");
-    }
+app.delete("/tweets/:tweetId/", async (request, response) => {
+  const { tweetId } = request.params;
+  const getTweetQuery = `
+    SELECT
+      *
+    FROM
+      tweet
+    WHERE tweet_id = ${tweetId}
+    `;
+  const tweet = await db.get(getTweetQuery);
+  const { user_id } = tweet;
+  if (user_id === user_id) {
+    const deleteTweetQuery = `
+      DELETE FROM
+        tweet
+      WHERE tweet_id = ${tweetId}
+      `;
+    await db.run(deleteTweetQuery);
+    response.send("Tweet Removed");
+  } else {
+    /*Send Invalid Request as response*/
+    response.send(401);
+    response.send("Invalid Request");
   }
-);
+});
 
 module.exports = app;
